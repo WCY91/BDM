@@ -1,0 +1,2 @@
+max_depth,random_state,train_accuracy,test_accuracy,weighted_samples
+6,35,0.17519181585677748,0.12755102040816327,True

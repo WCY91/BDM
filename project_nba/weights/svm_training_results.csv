@@ -1,0 +1,2 @@
+kernel,C,probability,random_state,train_accuracy,test_accuracy
+rbf,1.0,True,42,0.42391304347826086,0.39540816326530615
