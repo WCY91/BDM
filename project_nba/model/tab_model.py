@@ -17,7 +17,7 @@ import tensorflow as tf
 from sklearn.model_selection import KFold
 import numpy as np
 import os
-from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.layers import Dense, Input,Flatten
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from transformers import BertTokenizer, TFBertModel
@@ -48,3 +48,45 @@ y= time_y / 4 #make time label
 X_train, X_test, y_train, y_test= train_test_split(
     X, y, test_size=0.2, random_state=3
 )
+# Note: 'keras<3.x' or 'tf_keras' must be installed (legacy)
+# See https://github.com/keras-team/tf-keras for more details.
+from huggingface_hub import from_pretrained_keras
+
+def hug_tab_model():
+    base_model = from_pretrained_keras("keras-io/tab_transformer")
+    for layer in base_model.layers:
+        layer.trainable = False
+    x = base_model.output
+    x = Flatten()(x)
+    x = Dense(128, activation='relu')(x)
+    x = LeakyReLU()(x)
+    x = Dropout(0.3)(x)
+    x = Dense(64, activation='relu')(x)
+    x = Dropout(0.3)(x)
+    x = Dense(32, activation='relu')(x)
+    x = Dense(16, activation='relu')(x)
+    predictions = Dense(1)(x)
+    model = Model(inputs=base_model.input, outputs=predictions)
+    model.compile(optimizer='adam', loss='mse', metrics=['mse','mae'])
+    return model
+
+X = salaries_data[['PTS', 'PF', 'TOV', 'AST', 'STL','BLK','TRB','FG','FGA']].values
+X = normalize(X, norm="l1")
+y = salaries_data['MP'].values
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,test_size=0.2, random_state=3
+)
+time_model = hug_tab_model()
+history = time_model.fit(X_train,y_train,validation_split=0.1, epochs=80, batch_size=32)
+y_pred = time_model.predict(X_test)
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred, alpha=0.7)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', linewidth=2)
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.title('Actual vs Predicted')
+plt.show()
+time_model.save('weights/time_reg_hug.h5')
+
+
+
