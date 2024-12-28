@@ -19,7 +19,7 @@ print(salaries_data)
 X = salaries_data[['PTS', 'PF', 'TOV', 'AST', 'STL','BLK','TRB','FG','FGA']].values
 X = normalize(X, norm="l1")
 money_y= y  = salaries_data["target"]
-time_y= time_y / 4 #make time label
+time_y= int(time_y / 4) #make time label
 time_value = salaries_data['MP'].values
 X_train, X_test, y_train, y_test, time_y_train, time_y_test,time_value_y_train,time_value_y_test = train_test_split(
     X, y, time_y,time_value,test_size=0.2, random_state=3
@@ -149,11 +149,11 @@ def build_classify_model(class_num):
   return model
 
 
-# time_clf_model =  build_classify_model(time_classes)
-# history = time_clf_model.fit(X_train, time_y_train, validation_split=0.1, epochs=80, batch_size=32)
-# y_pred = time_clf_model.predict(X_test)
-# loss, accuracy = time_clf_model.evaluate(X_test, time_y_test)
-# time_clf_model.save('weights/time_clf_transformer.h5')
+time_clf_model =  build_classify_model(time_classes)
+history = time_clf_model.fit(X_train, time_y_train, validation_split=0.1, epochs=80, batch_size=32)
+y_pred = time_clf_model.predict(X_test)
+loss, accuracy = time_clf_model.evaluate(X_test, time_y_test)
+time_clf_model.save('weights/time_clf_transformer.h5')
 
 # time value predict model
 # X = salaries_data[['PTS', 'PF', 'TOV', 'AST', 'STL','BLK','TRB','FG','FGA']].values
